@@ -39,6 +39,8 @@ interface NetworkVisualizationProps {
     maxNodes: number
     maxEdges: number
   }
+  highlightedArtist?: string | null
+  onNodeHover?: (artistId: string | null) => void
 }
 
 interface ProcessedNode {
@@ -74,6 +76,8 @@ export default function NetworkVisualization({
     maxNodes: 700,
     maxEdges: 500,
   },
+  highlightedArtist = null,
+  onNodeHover,
 }: NetworkVisualizationProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const simulationRef = useRef<d3.Simulation<ProcessedNode, ProcessedLink> | null>(null)
@@ -89,6 +93,16 @@ export default function NetworkVisualization({
     handleMouseDown?: () => void
     handleMouseUp?: () => void
   }>({})
+  const highlightedArtistRef = useRef<string | null>(null)
+
+  // Update highlightedArtist ref when it changes (without reinitializing simulation)
+  useEffect(() => {
+    highlightedArtistRef.current = highlightedArtist || null
+    // Force a re-render by restarting simulation slightly
+    if (simulationRef.current) {
+      simulationRef.current.alphaTarget(0.05).restart()
+    }
+  }, [highlightedArtist])
 
   useEffect(() => {
     if (!networkData || !canvasRef.current) {
@@ -337,6 +351,10 @@ export default function NetworkVisualization({
         // Always update hover state, even if no node found (to clear previous hover)
         if (nearestNode !== hoveredNodeRef.current) {
           hoveredNodeRef.current = nearestNode
+          // Clear highlighted artist when hovering over a node
+          if (nearestNode && highlightedArtistRef.current && onNodeHover) {
+            onNodeHover(null)
+          }
         } else if (nearestNode === null && hoveredNodeRef.current !== null) {
           // Explicitly clear hover when no node is found
           hoveredNodeRef.current = null
@@ -472,12 +490,25 @@ export default function NetworkVisualization({
           hoveredNodeRef.current &&
           (source.id === hoveredNodeRef.current.id ||
             target.id === hoveredNodeRef.current.id)
+        
+        const isHighlighted =
+          highlightedArtistRef.current &&
+          (source.id === highlightedArtistRef.current || target.id === highlightedArtistRef.current)
+        
+        const isHighlightedConnection =
+          highlightedArtist &&
+          source.id === highlightedArtist &&
+          target.id === highlightedArtist
 
         ctx.beginPath()
         if (isConnected) {
           ctx.strokeStyle = 'rgba(0, 255, 65, 0.6)'
           ctx.lineWidth = Math.sqrt(link.value) * 0.8
           ctx.setLineDash([2, 2])
+        } else if (isHighlighted) {
+          ctx.strokeStyle = 'rgba(0, 255, 65, 0.4)'
+          ctx.lineWidth = Math.sqrt(link.value) * 0.6
+          ctx.setLineDash([])
         } else if (hoveredNodeRef.current) {
           ctx.strokeStyle = 'rgba(255, 255, 255, 0.02)'
           ctx.lineWidth = 1
@@ -515,6 +546,7 @@ export default function NetworkVisualization({
         const state = nodeStatesRef.current[node.id]
 
         const isHovered = hoveredNodeRef.current === node
+        const isHighlighted = highlightedArtistRef.current === node.id
         const isNeighbor =
           hoveredNodeRef.current &&
           processedLinks.some(
@@ -524,6 +556,18 @@ export default function NetworkVisualization({
               return (
                 (src === hoveredNodeRef.current!.id && tgt === node.id) ||
                 (tgt === hoveredNodeRef.current!.id && src === node.id)
+              )
+            }
+          )
+        const isHighlightedNeighbor =
+          highlightedArtistRef.current &&
+          processedLinks.some(
+            (l) => {
+              const src = typeof l.source === 'string' ? l.source : l.source.id
+              const tgt = typeof l.target === 'string' ? l.target : l.target.id
+              return (
+                (src === highlightedArtistRef.current && tgt === node.id) ||
+                (tgt === highlightedArtistRef.current && src === node.id)
               )
             }
           )
@@ -557,7 +601,14 @@ export default function NetworkVisualization({
           ctx.beginPath()
           ctx.arc(x, y, radius, 0, Math.PI * 2)
           ctx.fill()
-        } else if (isNeighbor) {
+        } else if (isHighlighted) {
+          ctx.fillStyle = '#00ff41'
+          ctx.beginPath()
+          ctx.arc(x, y, radius, 0, Math.PI * 2)
+          ctx.fill()
+          ctx.font = "bold 11px 'JetBrains Mono'"
+          ctx.fillText(node.id, x, y - radius - 8)
+        } else if (isNeighbor || isHighlightedNeighbor) {
           ctx.fillStyle = '#ffffff'
           ctx.beginPath()
           ctx.arc(x, y, radius, 0, Math.PI * 2)
