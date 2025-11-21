@@ -164,3 +164,5 @@ jobs:
 - `next.config.js`で`output: 'export'`が設定されていることを確認
 - `trailingSlash: true`が設定されていることを確認
 
+
+

@@ -14,7 +14,7 @@ export default function TerminalOutput() {
   }, [logs])
 
   return (
-    <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-black via-black/90 to-transparent p-6 pointer-events-none font-mono text-xs z-10 flex flex-col justify-end">
+    <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-6 pointer-events-none font-mono text-xs z-10 flex flex-col justify-end">
       <div
         ref={terminalRef}
         className="text-green-500/80 space-y-1 h-full overflow-hidden flex flex-col justify-end opacity-70"

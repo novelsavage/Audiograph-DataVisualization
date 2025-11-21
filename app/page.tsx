@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import LoadingScreen from '@/components/LoadingScreen'
 import Navigation from '@/components/Navigation'
 import NetworkVisualization from '@/components/NetworkVisualization'
-import FeatureStrip from '@/components/FeatureStrip'
 import TerminalOutput from '@/components/TerminalOutput'
 import StatsBox from '@/components/StatsBox'
 import ControlPanel, {
@@ -14,9 +13,9 @@ import ControlPanel, {
 const DEFAULT_PARAMS: NetworkParams = {
   linkDistance: 50,
   chargeStrength: 1,
-  centerStrength: 0.0,
+  centerStrength: 1,
   collisionRadius: 1.5,
-  nodeSizeMultiplier: 1.5,
+  nodeSizeMultiplier: 2.0,
   maxNodes: 700,
   maxEdges: 500,
 }
@@ -67,8 +66,7 @@ export default function Home() {
           isLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-[0.98]'
         }`}
       >
-        <Navigation />
-        <FeatureStrip networkData={networkData} />
+        <Navigation networkData={networkData} />
         <div className="relative flex-grow bg-black overflow-hidden flex flex-col">
           <div className="absolute top-6 left-6 pointer-events-none z-10">
             <h2 className="text-4xl font-bold font-mono mb-2 text-white/90">
@@ -77,9 +75,11 @@ export default function Home() {
               NETWORK
             </h2>
             <p className="text-xs text-gray-500 font-mono max-w-xs mt-4 leading-relaxed">
-              アーティスト間の共演関係（featuring）を可視化したグラフ。
+              アーティスト間の共演関係（featuring）を可視化した
               <br />
-              ノードをドラッグしてネットワークの形状を操作できます。
+              グラフ。ノードをドラッグしてネットワークの形状を操作
+              <br />
+              できます。
               <br />
               <span className="text-green-500">
                 マウスオーバーで解析モードへ移行。
@@ -92,6 +92,16 @@ export default function Home() {
             params={networkParams}
           />
           <TerminalOutput />
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10 pointer-events-auto">
+            <a
+              href="https://github.com/novelsavage/Audiograph-DataVisualization"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs font-mono text-gray-500 hover:text-gray-300 transition-colors"
+            >
+              github.com/novelsavage/Audiograph-DataVisualization
+            </a>
+          </div>
           <ControlPanel
             onParamsChange={setNetworkParams}
             initialParams={DEFAULT_PARAMS}

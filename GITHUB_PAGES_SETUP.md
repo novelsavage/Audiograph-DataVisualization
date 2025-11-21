@@ -81,3 +81,5 @@ git push -u origin main
 - `next.config.js`で`trailingSlash: true`が設定されていることを確認
 - GitHub Pagesの設定でSourceが**GitHub Actions**になっていることを確認
 
+
+

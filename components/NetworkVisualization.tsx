@@ -68,9 +68,9 @@ export default function NetworkVisualization({
   params = {
     linkDistance: 50,
     chargeStrength: 1,
-    centerStrength: 0.0,
+    centerStrength: 1,
     collisionRadius: 1.5,
-    nodeSizeMultiplier: 1.5,
+    nodeSizeMultiplier: 2.0,
     maxNodes: 700,
     maxEdges: 500,
   },

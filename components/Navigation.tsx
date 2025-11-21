@@ -1,4 +1,15 @@
-export default function Navigation() {
+interface NavigationProps {
+  networkData: {
+    nodes: any[]
+    edges: any[]
+    metadata: any
+  } | null
+}
+
+export default function Navigation({ networkData }: NavigationProps) {
+  const nodeCount = networkData?.metadata?.total_nodes ?? '--'
+  const edgeCount = networkData?.metadata?.total_edges ?? '--'
+
   return (
     <nav className="fixed w-full z-40 top-0 left-0 border-b border-white/10 bg-black/80 backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -8,20 +19,70 @@ export default function Navigation() {
             AUDIOGRAPH
           </span>
         </div>
-        <div className="hidden md:flex items-center gap-6 font-mono text-xs text-gray-400">
-          <a href="#" className="text-white">
-            VISUALIZER
-          </a>
-          <a href="#" className="hover:text-white transition-colors">
-            SEARCH
-          </a>
-          <a href="#" className="hover:text-white transition-colors">
-            ABOUT
-          </a>
+        <div className="flex-1 overflow-hidden ml-8">
+          <div className="flex whitespace-nowrap animate-marquee gap-8 items-center text-xs font-mono text-gray-400">
+            {/* First set */}
+            <span className="flex items-center gap-2">
+              <span className="text-green-500">●</span> LIVE_NETWORK
+            </span>
+            <span>///</span>
+            <span>DATASET: SpotifyFeatures.csv</span>
+            <span>///</span>
+            <span>
+              NODES: <span className="dynamic-node-count">{nodeCount}</span>
+            </span>
+            <span>///</span>
+            <span>
+              EDGES: <span className="dynamic-edge-count">{edgeCount}</span>
+            </span>
+            <span>///</span>
+            <span>ALGORITHM: FORCE_DIRECTED</span>
+            <span>///</span>
+            <span className="flex items-center gap-2">
+              <span className="text-green-500">●</span> INTERACTIVE_MODE
+            </span>
+            <span>///</span>
+            <span>DATASET: SpotifyFeatures.csv</span>
+            <span>///</span>
+            <span>
+              NODES: <span className="dynamic-node-count">{nodeCount}</span>
+            </span>
+            <span>///</span>
+            <span>
+              EDGES: <span className="dynamic-edge-count">{edgeCount}</span>
+            </span>
+            {/* Duplicate for seamless loop */}
+            <span className="flex items-center gap-2">
+              <span className="text-green-500">●</span> LIVE_NETWORK
+            </span>
+            <span>///</span>
+            <span>DATASET: SpotifyFeatures.csv</span>
+            <span>///</span>
+            <span>
+              NODES: <span className="dynamic-node-count">{nodeCount}</span>
+            </span>
+            <span>///</span>
+            <span>
+              EDGES: <span className="dynamic-edge-count">{edgeCount}</span>
+            </span>
+            <span>///</span>
+            <span>ALGORITHM: FORCE_DIRECTED</span>
+            <span>///</span>
+            <span className="flex items-center gap-2">
+              <span className="text-green-500">●</span> INTERACTIVE_MODE
+            </span>
+            <span>///</span>
+            <span>DATASET: SpotifyFeatures.csv</span>
+            <span>///</span>
+            <span>
+              NODES: <span className="dynamic-node-count">{nodeCount}</span>
+            </span>
+            <span>///</span>
+            <span>
+              EDGES: <span className="dynamic-edge-count">{edgeCount}</span>
+            </span>
+          </div>
         </div>
-        <button className="hidden md:block px-4 py-1.5 border border-white/20 rounded-full text-xs font-mono hover:bg-white hover:text-black transition-all duration-300">
-          ACCESS DB
-        </button>
       </div>
     </nav>
   )

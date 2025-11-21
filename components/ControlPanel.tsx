@@ -37,8 +37,10 @@ export default function ControlPanel({
     max: number,
     step: number
   ) => {
-    e.preventDefault()
+    // Only stop propagation to prevent panel scrolling, but don't prevent default
+    // This allows the slider to still work while preventing panel scroll
     e.stopPropagation()
+    
     const delta = e.deltaY > 0 ? -step : step
     const currentValue = params[key] as number
     const newValue = Math.max(min, Math.min(max, currentValue + delta))
@@ -65,7 +67,7 @@ export default function ControlPanel({
       {/* Control Panel */}
       {isOpen && (
         <div
-          className="fixed bottom-20 right-6 z-50 w-80 bg-black/90 border border-white/20 rounded p-4 font-mono text-xs backdrop-blur-md max-h-[70vh] overflow-y-auto"
+          className="fixed bottom-20 right-6 z-50 w-80 bg-black/90 border border-white/20 rounded p-3 font-mono text-xs backdrop-blur-md overflow-y-auto"
           onWheel={(e) => {
             // Prevent panel scrolling when adjusting sliders
             const target = e.target as HTMLElement
@@ -84,7 +86,7 @@ export default function ControlPanel({
             </button>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3">
             {/* Link Distance */}
             <div>
               <label className="block text-gray-400 mb-1">
@@ -104,9 +106,6 @@ export default function ControlPanel({
                 }
                 className="w-full"
               />
-              <p className="text-gray-500 text-[10px] mt-1">
-                エッジ（線）の長さを調整します
-              </p>
             </div>
 
             {/* Charge Strength */}
@@ -128,9 +127,6 @@ export default function ControlPanel({
                 }
                 className="w-full"
               />
-              <p className="text-gray-500 text-[10px] mt-1">
-                ノード間の力：負の値=反発、正の値=引力（ホイールで微調整可）
-              </p>
             </div>
 
             {/* Center Strength */}
@@ -152,9 +148,6 @@ export default function ControlPanel({
                 }
                 className="w-full"
               />
-              <p className="text-gray-500 text-[10px] mt-1">
-                画面中央への引力の強さ（ホイールで微調整可）
-              </p>
             </div>
 
             {/* Collision Radius */}
@@ -176,9 +169,6 @@ export default function ControlPanel({
                 }
                 className="w-full"
               />
-              <p className="text-gray-500 text-[10px] mt-1">
-                ノード同士の衝突判定の半径（ホイールで微調整可）
-              </p>
             </div>
 
             {/* Node Size Multiplier */}
@@ -200,9 +190,6 @@ export default function ControlPanel({
                 }
                 className="w-full"
               />
-              <p className="text-gray-500 text-[10px] mt-1">
-                ノード（円）のサイズの倍率（ホイールで微調整可）
-              </p>
             </div>
 
             {/* Max Nodes */}
@@ -224,9 +211,6 @@ export default function ControlPanel({
                 }
                 className="w-full"
               />
-              <p className="text-gray-500 text-[10px] mt-1">
-                表示するノード数（データの順序で最初のN個を表示）（ホイールで微調整可）
-              </p>
             </div>
 
             {/* Max Edges */}
@@ -248,15 +232,9 @@ export default function ControlPanel({
                 }
                 className="w-full"
               />
-              <p className="text-gray-500 text-[10px] mt-1">
-                表示するエッジ数（コラボ回数の多い順で上位N個を表示）（ホイールで微調整可）
-              </p>
             </div>
           </div>
 
-          <div className="mt-4 pt-4 border-t border-white/10 text-gray-500 text-[10px]">
-            <p>💡 Tip: Adjust parameters to fit the network in view</p>
-          </div>
         </div>
       )}
     </>

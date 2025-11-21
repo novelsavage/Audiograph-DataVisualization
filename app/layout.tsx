@@ -17,6 +17,9 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: 'AUDIOGRAPH | Sonic Database',
   description: 'Spotify Featuring Network Visualization',
+  icons: {
+    icon: '/3232_face_fabicon.png',
+  },
 }
 
 export default function RootLayout({
