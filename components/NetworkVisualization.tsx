@@ -40,6 +40,8 @@ interface NetworkVisualizationProps {
     maxEdges: number
   }
   highlightedArtist?: string | null
+  searchQuery?: string
+  searchResults?: string[]
   onNodeHover?: (artistId: string | null) => void
 }
 
@@ -77,6 +79,8 @@ export default function NetworkVisualization({
     maxEdges: 500,
   },
   highlightedArtist = null,
+  searchQuery = '',
+  searchResults = [],
   onNodeHover,
 }: NetworkVisualizationProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -94,6 +98,8 @@ export default function NetworkVisualization({
     handleMouseUp?: () => void
   }>({})
   const highlightedArtistRef = useRef<string | null>(null)
+  const searchQueryRef = useRef<string>('')
+  const searchResultsRef = useRef<string[]>([])
 
   // Update highlightedArtist ref when it changes (without reinitializing simulation)
   useEffect(() => {
@@ -103,6 +109,16 @@ export default function NetworkVisualization({
       simulationRef.current.alphaTarget(0.05).restart()
     }
   }, [highlightedArtist])
+
+  // Update search query and results refs when they change
+  useEffect(() => {
+    searchQueryRef.current = searchQuery
+    searchResultsRef.current = searchResults
+    // Force a re-render by restarting simulation slightly
+    if (simulationRef.current) {
+      simulationRef.current.alphaTarget(0.05).restart()
+    }
+  }, [searchQuery, searchResults])
 
   useEffect(() => {
     if (!networkData || !canvasRef.current) {
@@ -547,6 +563,8 @@ export default function NetworkVisualization({
 
         const isHovered = hoveredNodeRef.current === node
         const isHighlighted = highlightedArtistRef.current === node.id
+        // 検索結果に一致するノードかどうかをチェック
+        const isSearchMatch = searchQueryRef.current.trim() && searchResultsRef.current.includes(node.id)
         const isNeighbor =
           hoveredNodeRef.current &&
           processedLinks.some(
@@ -608,6 +626,15 @@ export default function NetworkVisualization({
           ctx.fill()
           ctx.font = "bold 11px 'JetBrains Mono'"
           ctx.fillText(node.id, x, y - radius - 8)
+        } else if (isSearchMatch) {
+          // 検索結果に一致するノードをハイライト（オレンジ色）
+          ctx.fillStyle = '#ff8800'
+          ctx.beginPath()
+          ctx.arc(x, y, radius, 0, Math.PI * 2)
+          ctx.fill()
+          ctx.font = "bold 10px 'JetBrains Mono'"
+          ctx.fillStyle = '#ffaa44'
+          ctx.fillText(node.id, x, y - radius - 5)
         } else if (isNeighbor || isHighlightedNeighbor) {
           ctx.fillStyle = '#ffffff'
           ctx.beginPath()
@@ -617,14 +644,18 @@ export default function NetworkVisualization({
           ctx.font = "10px 'JetBrains Mono'"
           ctx.fillText(node.id, x, y - radius - 5)
         } else {
-          ctx.fillStyle = hoveredNodeRef.current ? '#222222' : '#888888'
+          // 検索中は一致しないノードを暗く表示
+          const baseOpacity = searchQueryRef.current.trim() ? 0.2 : 1.0
+          ctx.fillStyle = hoveredNodeRef.current 
+            ? `rgba(34, 34, 34, ${baseOpacity})` 
+            : `rgba(136, 136, 136, ${baseOpacity})`
 
           if (node.val > 50) {
             ctx.beginPath()
             ctx.arc(x, y, radius, 0, Math.PI * 2)
             ctx.fill()
             if (!hoveredNodeRef.current) {
-              ctx.fillStyle = '#555'
+              ctx.fillStyle = `rgba(85, 85, 85, ${baseOpacity})`
               ctx.fillText(node.id, x, y)
             }
           } else {

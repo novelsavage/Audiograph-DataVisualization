@@ -31,6 +31,8 @@ export default function Home() {
   const [networkParams, setNetworkParams] =
     useState<NetworkParams>(DEFAULT_PARAMS)
   const [highlightedArtist, setHighlightedArtist] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState<string[]>([])
 
   useEffect(() => {
     // Load network data
@@ -68,7 +70,19 @@ export default function Home() {
           isLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-[0.98]'
         }`}
       >
-        <Navigation networkData={networkData} />
+        <Navigation 
+          networkData={networkData}
+          onSearchChange={(query, results) => {
+            setSearchQuery(query)
+            setSearchResults(results)
+            // 検索結果が1件の場合は自動的にハイライト
+            if (results.length === 1) {
+              setHighlightedArtist(results[0])
+            } else if (query.trim() === '') {
+              setHighlightedArtist(null)
+            }
+          }}
+        />
         <div className="relative flex-grow bg-black overflow-hidden flex flex-col">
           <div className="absolute top-6 left-6 pointer-events-none z-10">
             <h2 className="text-4xl font-bold font-mono mb-2 text-white/90">
@@ -93,6 +107,8 @@ export default function Home() {
             networkData={networkData}
             params={networkParams}
             highlightedArtist={highlightedArtist}
+            searchQuery={searchQuery}
+            searchResults={searchResults}
             onNodeHover={(artistId: string | null) => {
               // When hovering over a node, clear the highlighted artist
               if (highlightedArtist) {
