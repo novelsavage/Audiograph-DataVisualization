@@ -559,6 +559,68 @@ export default function NetworkVisualization({
       ctx.textBaseline = 'middle'
       ctx.font = "10px 'JetBrains Mono'"
 
+      // ラベルの衝突検出用：表示されるラベルの位置を記録
+      interface LabelPosition {
+        nodeId: string
+        x: number
+        y: number
+        width: number
+        height: number
+      }
+      const labelPositions: LabelPosition[] = []
+
+      // ラベルの位置を計算する関数（衝突を避ける）
+      const calculateLabelPosition = (
+        nodeX: number,
+        nodeY: number,
+        radius: number,
+        labelText: string,
+        fontSize: number,
+        offsetY: number
+      ): { x: number; y: number } => {
+        const labelWidth = ctx.measureText(labelText).width
+        const labelHeight = fontSize
+        const padding = 5
+        
+        // デフォルト位置（ノードの上）
+        let labelX = nodeX
+        let labelY = nodeY - radius - offsetY
+        
+        // 他のラベルとの衝突をチェック
+        const checkCollision = (x: number, y: number): boolean => {
+          return labelPositions.some((pos) => {
+            return (
+              x < pos.x + pos.width + padding &&
+              x + labelWidth + padding > pos.x &&
+              y < pos.y + pos.height + padding &&
+              y + labelHeight + padding > pos.y
+            )
+          })
+        }
+
+        // 衝突がなければデフォルト位置を使用
+        if (!checkCollision(labelX, labelY)) {
+          return { x: labelX, y: labelY }
+        }
+
+        // 衝突がある場合、他の位置を試す（上、下、左、右）
+        const positions = [
+          { x: nodeX, y: nodeY - radius - offsetY }, // 上（デフォルト）
+          { x: nodeX, y: nodeY + radius + offsetY }, // 下
+          { x: nodeX - radius - offsetY - labelWidth / 2, y: nodeY }, // 左
+          { x: nodeX + radius + offsetY + labelWidth / 2, y: nodeY }, // 右
+        ]
+
+        for (const pos of positions) {
+          if (!checkCollision(pos.x, pos.y)) {
+            return pos
+          }
+        }
+
+        // すべての位置で衝突する場合、デフォルト位置を使用（重なっても表示）
+        return { x: labelX, y: labelY }
+      }
+
       processedNodes.forEach((node) => {
         if (!node.x || !node.y) return
 
@@ -623,7 +685,18 @@ export default function NetworkVisualization({
             state.hoverProgress
           )
           ctx.font = "bold 12px 'JetBrains Mono'"
-          ctx.fillText(label, x, y - radius - 10)
+          const labelPos = calculateLabelPosition(x, y, radius, label, 12, 10)
+          ctx.fillText(label, labelPos.x, labelPos.y)
+          
+          // ラベル位置を記録
+          const labelWidth = ctx.measureText(label).width
+          labelPositions.push({
+            nodeId: node.id,
+            x: labelPos.x - labelWidth / 2,
+            y: labelPos.y - 6,
+            width: labelWidth,
+            height: 12
+          })
 
           // Draw node circle
           ctx.beginPath()
@@ -635,7 +708,18 @@ export default function NetworkVisualization({
           ctx.arc(x, y, radius, 0, Math.PI * 2)
           ctx.fill()
           ctx.font = "bold 11px 'JetBrains Mono'"
-          ctx.fillText(node.id, x, y - radius - 8)
+          const labelPos = calculateLabelPosition(x, y, radius, node.id, 11, 8)
+          ctx.fillText(node.id, labelPos.x, labelPos.y)
+          
+          // ラベル位置を記録
+          const labelWidth = ctx.measureText(node.id).width
+          labelPositions.push({
+            nodeId: node.id,
+            x: labelPos.x - labelWidth / 2,
+            y: labelPos.y - 5.5,
+            width: labelWidth,
+            height: 11
+          })
         } else if (isSearchMatch) {
           // 検索結果に一致するノードをハイライト（オレンジ色）
           ctx.fillStyle = '#ff8800'
@@ -644,7 +728,18 @@ export default function NetworkVisualization({
           ctx.fill()
           ctx.font = "bold 10px 'JetBrains Mono'"
           ctx.fillStyle = '#ffaa44'
-          ctx.fillText(node.id, x, y - radius - 5)
+          const labelPos = calculateLabelPosition(x, y, radius, node.id, 10, 5)
+          ctx.fillText(node.id, labelPos.x, labelPos.y)
+          
+          // ラベル位置を記録
+          const labelWidth = ctx.measureText(node.id).width
+          labelPositions.push({
+            nodeId: node.id,
+            x: labelPos.x - labelWidth / 2,
+            y: labelPos.y - 5,
+            width: labelWidth,
+            height: 10
+          })
         } else if (isNeighbor || isHighlightedNeighbor) {
           ctx.fillStyle = '#ffffff'
           ctx.beginPath()
@@ -652,29 +747,55 @@ export default function NetworkVisualization({
           ctx.fill()
 
           ctx.font = "10px 'JetBrains Mono'"
-          ctx.fillText(node.id, x, y - radius - 5)
+          const labelPos = calculateLabelPosition(x, y, radius, node.id, 10, 5)
+          ctx.fillText(node.id, labelPos.x, labelPos.y)
+          
+          // ラベル位置を記録
+          const labelWidth = ctx.measureText(node.id).width
+          labelPositions.push({
+            nodeId: node.id,
+            x: labelPos.x - labelWidth / 2,
+            y: labelPos.y - 5,
+            width: labelWidth,
+            height: 10
+          })
         } else {
           // 検索中は一致しないノードを暗く表示
           const baseOpacity = searchQueryRef.current.trim() ? 0.2 : 1.0
+          // ホバー時は他のノードを完全に非表示にせず、少し見えるようにする
+          const hoverOpacity = hoveredNodeRef.current ? 0.5 : 1.0
+          const finalOpacity = baseOpacity * hoverOpacity
           ctx.fillStyle = hoveredNodeRef.current 
-            ? `rgba(34, 34, 34, ${baseOpacity})` 
+            ? `rgba(136, 136, 136, ${finalOpacity})` 
             : `rgba(136, 136, 136, ${baseOpacity})`
 
           if (node.val > 50) {
             ctx.beginPath()
             ctx.arc(x, y, radius, 0, Math.PI * 2)
             ctx.fill()
-            if (!hoveredNodeRef.current) {
-              ctx.fillStyle = `rgba(85, 85, 85, ${baseOpacity})`
-              ctx.fillText(node.id, x, y)
-            }
+            // ホバー時でもラベルを表示（透明度を下げる）
+            const labelOpacity = hoveredNodeRef.current ? finalOpacity : baseOpacity
+            ctx.fillStyle = `rgba(85, 85, 85, ${labelOpacity})`
+            // 通常時のラベルも衝突検出を使用
+            ctx.font = "10px 'JetBrains Mono'"
+            const labelPos = calculateLabelPosition(x, y, radius, node.id, 10, 0)
+            ctx.fillText(node.id, labelPos.x, labelPos.y)
+            
+            // ラベル位置を記録
+            const labelWidth = ctx.measureText(node.id).width
+            labelPositions.push({
+              nodeId: node.id,
+              x: labelPos.x - labelWidth / 2,
+              y: labelPos.y - 5,
+              width: labelWidth,
+              height: 10
+            })
           } else {
             // 十字（+）を描画する前に、適切なfillStyleを設定
             // 検索中でも十字は見えるように、最小限の透明度を保つ
             const crossOpacity = searchQueryRef.current.trim() ? Math.max(baseOpacity, 0.4) : baseOpacity
-            ctx.fillStyle = hoveredNodeRef.current 
-              ? `rgba(136, 136, 136, ${crossOpacity})` 
-              : `rgba(136, 136, 136, ${crossOpacity})`
+            const finalCrossOpacity = hoveredNodeRef.current ? crossOpacity * 0.5 : crossOpacity
+            ctx.fillStyle = `rgba(136, 136, 136, ${finalCrossOpacity})`
             ctx.fillText('+', x, y)
           }
         }
