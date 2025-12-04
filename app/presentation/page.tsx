@@ -423,25 +423,19 @@ const slides = [
           <li className="marker:text-terminal-green">
             <span className="text-white font-bold">データ収集の最適化</span>
             <p className="text-base text-gray-500 ml-6 mt-1">
-              Viralチャートやトッププレイリストを活用し、より現在のトレンドを反映した「生きた」アーティストネットワークの抽出を実現したいです。
+              Viralチャートやトッププレイリストを活用し、より現在のトレンドを反映したアーティストネットワークの抽出を実現したいです。
             </p>
           </li>
           <li className="marker:text-terminal-green">
             <span className="text-white font-bold">楽曲プレビュー再生機能</span>
             <p className="text-base text-gray-500 ml-6 mt-1">
-              エッジ（共演関係）をクリックした際に、そのフィーチャリング楽曲を即座に試聴できるプレーヤー機能をがあったら楽しそうです。
+              エッジ（共演関係）をクリックした際に、そのフィーチャリング楽曲を試聴できるプレーヤー機能をがあったら楽しそうです。
             </p>
           </li>
           <li className="marker:text-terminal-green">
-            <span className="text-white font-bold">ジャンルごとの色分け</span>
+            <span className="text-white font-bold">データから仮説を立て、それを検証</span>
             <p className="text-base text-gray-500 ml-6 mt-1">
-              エッジのジャンル情報を活用して、ノードの色を主要ジャンルに基づいて設定し、視覚的魅力を向上させたいです。
-            </p>
-          </li>
-          <li className="marker:text-terminal-green">
-            <span className="text-white font-bold">拡大縮小機能（ズーム）</span>
-            <p className="text-base text-gray-500 ml-6 mt-1">
-              D3.jsの`d3.zoom()`を実装し、マウスホイールでのズーム機能を追加したいです。
+              ネットワーク構造から見えるパターンやクラスタを分析し、音楽業界における共演の傾向やジャンル間の関係性について仮説を立て、データで検証していきたいです。
             </p>
           </li>
         </ul>
