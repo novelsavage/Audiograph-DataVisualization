@@ -8,10 +8,12 @@ interface NavigationProps {
     edges: any[]
     metadata: any
   } | null
+  datasetType?: 'international' | 'japanese'
+  onDatasetChange?: (type: 'international' | 'japanese') => void
   onSearchChange?: (searchQuery: string, searchResults: string[]) => void
 }
 
-export default function Navigation({ networkData, onSearchChange }: NavigationProps) {
+export default function Navigation({ networkData, datasetType, onDatasetChange, onSearchChange }: NavigationProps) {
   const nodeCount = networkData?.metadata?.total_nodes ?? '--'
   const edgeCount = networkData?.metadata?.total_edges ?? '--'
   const [searchQuery, setSearchQuery] = useState('')
@@ -72,11 +74,38 @@ export default function Navigation({ networkData, onSearchChange }: NavigationPr
   return (
     <nav className="fixed w-full z-40 top-0 left-0 border-b border-white/10 bg-black/80 backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-white rounded-full animate-pulse" />
-          <span className="text-lg font-bold tracking-tight font-mono">
-            AUDIOGRAPH
-          </span>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 bg-white rounded-full animate-pulse" />
+            <span className="text-lg font-bold tracking-tight font-mono">
+              AUDIOGRAPH
+            </span>
+          </div>
+          {/* データセット切り替えボタン */}
+          {onDatasetChange && (
+            <div className="flex items-center gap-2 border-l border-white/10 pl-4">
+              <button
+                onClick={() => onDatasetChange('international')}
+                className={`px-3 py-1 text-xs font-mono rounded border transition-colors ${
+                  datasetType === 'international'
+                    ? 'bg-terminal-green text-black border-terminal-green'
+                    : 'bg-transparent text-gray-400 border-gray-600 hover:border-gray-500'
+                }`}
+              >
+                INTERNATIONAL
+              </button>
+              <button
+                onClick={() => onDatasetChange('japanese')}
+                className={`px-3 py-1 text-xs font-mono rounded border transition-colors ${
+                  datasetType === 'japanese'
+                    ? 'bg-terminal-green text-black border-terminal-green'
+                    : 'bg-transparent text-gray-400 border-gray-600 hover:border-gray-500'
+                }`}
+              >
+                JAPANESE
+              </button>
+            </div>
+          )}
         </div>
         <div className="flex-1 overflow-hidden ml-8">
           <div className="flex whitespace-nowrap animate-marquee gap-8 items-center text-xs font-mono text-gray-400">
