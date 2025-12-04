@@ -33,6 +33,7 @@ export default function Home() {
   const [highlightedArtist, setHighlightedArtist] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState<string[]>([])
+  const [isManualSelection, setIsManualSelection] = useState(false)
 
   useEffect(() => {
     // Load network data
@@ -78,7 +79,9 @@ export default function Home() {
             // 検索結果が1件の場合は自動的にハイライト
             if (results.length === 1) {
               setHighlightedArtist(results[0])
-            } else if (query.trim() === '') {
+              setIsManualSelection(false)
+            } else if (query.trim() === '' && !isManualSelection) {
+              // 検索クエリが空で、かつ手動選択でない場合のみクリア
               setHighlightedArtist(null)
             }
           }}
@@ -110,15 +113,22 @@ export default function Home() {
             searchQuery={searchQuery}
             searchResults={searchResults}
             onNodeHover={(artistId: string | null) => {
-              // When hovering over a node, clear the highlighted artist
-              if (highlightedArtist) {
-                setHighlightedArtist(null)
-              }
+              // onNodeHover is kept for potential future use
+              // Currently, we don't clear highlightedArtist on hover
+              // to allow ArtistHighlight selections to persist
             }}
           />
           <ArtistHighlight
             selectedArtist={highlightedArtist}
-            onSelectArtist={setHighlightedArtist}
+            onSelectArtist={(artist) => {
+              setHighlightedArtist(artist)
+              setIsManualSelection(artist !== null)
+              // 手動選択時は検索クエリをクリア
+              if (artist !== null) {
+                setSearchQuery('')
+                setSearchResults([])
+              }
+            }}
           />
           <TerminalOutput />
           <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10 pointer-events-auto">

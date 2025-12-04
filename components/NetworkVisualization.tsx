@@ -367,10 +367,8 @@ export default function NetworkVisualization({
         // Always update hover state, even if no node found (to clear previous hover)
         if (nearestNode !== hoveredNodeRef.current) {
           hoveredNodeRef.current = nearestNode
-          // Clear highlighted artist when hovering over a node
-          if (nearestNode && highlightedArtistRef.current && onNodeHover) {
-            onNodeHover(null)
-          }
+          // Don't clear highlighted artist when hovering - let user control it via ArtistHighlight
+          // The onNodeHover callback is kept for potential future use but not used to clear selection
         } else if (nearestNode === null && hoveredNodeRef.current !== null) {
           // Explicitly clear hover when no node is found
           hoveredNodeRef.current = null
@@ -516,6 +514,9 @@ export default function NetworkVisualization({
           source.id === highlightedArtist &&
           target.id === highlightedArtist
 
+        // 検索中かどうかをチェック
+        const isSearching = searchQueryRef.current.trim() !== ''
+
         ctx.beginPath()
         if (isConnected) {
           ctx.strokeStyle = 'rgba(0, 255, 65, 0.6)'
@@ -525,11 +526,20 @@ export default function NetworkVisualization({
           ctx.strokeStyle = 'rgba(0, 255, 65, 0.4)'
           ctx.lineWidth = Math.sqrt(link.value) * 0.6
           ctx.setLineDash([])
-        } else if (hoveredNodeRef.current) {
-          ctx.strokeStyle = 'rgba(255, 255, 255, 0.02)'
-          ctx.lineWidth = 1
-          ctx.setLineDash([])
+        } else if (isSearching) {
+          // 検索中は、検索結果に一致するノードに接続されたエッジのみ表示
+          const sourceMatch = searchResultsRef.current.includes(source.id)
+          const targetMatch = searchResultsRef.current.includes(target.id)
+          if (sourceMatch || targetMatch) {
+            ctx.strokeStyle = 'rgba(255, 136, 0, 0.3)'
+            ctx.lineWidth = Math.sqrt(link.value) * 0.4
+            ctx.setLineDash([])
+          } else {
+            // 検索結果に一致しないエッジは非表示
+            return
+          }
         } else {
+          // 通常時とホバー時は同じようにエッジを表示（視覚的ノイズにならないため）
           ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)'
           ctx.lineWidth = Math.sqrt(link.value) * 0.5
           ctx.setLineDash([])
@@ -659,6 +669,12 @@ export default function NetworkVisualization({
               ctx.fillText(node.id, x, y)
             }
           } else {
+            // 十字（+）を描画する前に、適切なfillStyleを設定
+            // 検索中でも十字は見えるように、最小限の透明度を保つ
+            const crossOpacity = searchQueryRef.current.trim() ? Math.max(baseOpacity, 0.4) : baseOpacity
+            ctx.fillStyle = hoveredNodeRef.current 
+              ? `rgba(136, 136, 136, ${crossOpacity})` 
+              : `rgba(136, 136, 136, ${crossOpacity})`
             ctx.fillText('+', x, y)
           }
         }
