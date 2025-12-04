@@ -2,16 +2,25 @@
 
 import { useState, useMemo, useRef, useEffect } from 'react'
 
+type DatasetType = 'international' | 'japanese'
+
 interface NavigationProps {
   networkData: {
     nodes: any[]
     edges: any[]
     metadata: any
   } | null
+  datasetType?: DatasetType
+  onDatasetChange?: (datasetType: DatasetType) => void
   onSearchChange?: (searchQuery: string, searchResults: string[]) => void
 }
 
-export default function Navigation({ networkData, onSearchChange }: NavigationProps) {
+export default function Navigation({ 
+  networkData, 
+  datasetType = 'international',
+  onDatasetChange,
+  onSearchChange 
+}: NavigationProps) {
   const nodeCount = networkData?.metadata?.total_nodes ?? '--'
   const edgeCount = networkData?.metadata?.total_edges ?? '--'
   const [searchQuery, setSearchQuery] = useState('')
@@ -69,14 +78,43 @@ export default function Navigation({ networkData, onSearchChange }: NavigationPr
     }
   }, [])
 
+  const datasetName = datasetType === 'japanese' ? 'JapaneseMusic.csv' : 'SpotifyFeatures.csv'
+
   return (
     <nav className="fixed w-full z-40 top-0 left-0 border-b border-white/10 bg-black/80 backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-white rounded-full animate-pulse" />
-          <span className="text-lg font-bold tracking-tight font-mono">
-            AUDIOGRAPH
-          </span>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 bg-white rounded-full animate-pulse" />
+            <span className="text-lg font-bold tracking-tight font-mono">
+              AUDIOGRAPH
+            </span>
+          </div>
+          {/* データセット切り替えボタン */}
+          {onDatasetChange && (
+            <div className="flex items-center gap-2 border-l border-white/10 pl-4">
+              <button
+                onClick={() => onDatasetChange('international')}
+                className={`px-3 py-1 text-xs font-mono rounded transition-all ${
+                  datasetType === 'international'
+                    ? 'bg-green-500/20 text-green-500 border border-green-500/50'
+                    : 'bg-black/40 text-gray-400 border border-white/10 hover:border-white/20 hover:text-gray-300'
+                }`}
+              >
+                INTERNATIONAL
+              </button>
+              <button
+                onClick={() => onDatasetChange('japanese')}
+                className={`px-3 py-1 text-xs font-mono rounded transition-all ${
+                  datasetType === 'japanese'
+                    ? 'bg-green-500/20 text-green-500 border border-green-500/50'
+                    : 'bg-black/40 text-gray-400 border border-white/10 hover:border-white/20 hover:text-gray-300'
+                }`}
+              >
+                JAPANESE
+              </button>
+            </div>
+          )}
         </div>
         <div className="flex-1 overflow-hidden ml-8">
           <div className="flex whitespace-nowrap animate-marquee gap-8 items-center text-xs font-mono text-gray-400">
@@ -85,7 +123,7 @@ export default function Navigation({ networkData, onSearchChange }: NavigationPr
               <span className="text-green-500">●</span> LIVE_NETWORK
             </span>
             <span>///</span>
-            <span>DATASET: SpotifyFeatures.csv</span>
+            <span>DATASET: {datasetName}</span>
             <span>///</span>
             <span>
               NODES: <span className="dynamic-node-count">{nodeCount}</span>
@@ -101,7 +139,7 @@ export default function Navigation({ networkData, onSearchChange }: NavigationPr
               <span className="text-green-500">●</span> INTERACTIVE_MODE
             </span>
             <span>///</span>
-            <span>DATASET: SpotifyFeatures.csv</span>
+            <span>DATASET: {datasetName}</span>
             <span>///</span>
             <span>
               NODES: <span className="dynamic-node-count">{nodeCount}</span>
@@ -115,7 +153,7 @@ export default function Navigation({ networkData, onSearchChange }: NavigationPr
               <span className="text-green-500">●</span> LIVE_NETWORK
             </span>
             <span>///</span>
-            <span>DATASET: SpotifyFeatures.csv</span>
+            <span>DATASET: {datasetName}</span>
             <span>///</span>
             <span>
               NODES: <span className="dynamic-node-count">{nodeCount}</span>
@@ -131,7 +169,7 @@ export default function Navigation({ networkData, onSearchChange }: NavigationPr
               <span className="text-green-500">●</span> INTERACTIVE_MODE
             </span>
             <span>///</span>
-            <span>DATASET: SpotifyFeatures.csv</span>
+            <span>DATASET: {datasetName}</span>
             <span>///</span>
             <span>
               NODES: <span className="dynamic-node-count">{nodeCount}</span>

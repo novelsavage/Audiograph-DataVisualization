@@ -10,6 +10,7 @@ import ControlPanel, {
   NetworkParams,
 } from '@/components/ControlPanel'
 import ArtistHighlight from '@/components/ArtistHighlight'
+import Link from 'next/link'
 
 const DEFAULT_PARAMS: NetworkParams = {
   linkDistance: 50,
@@ -21,8 +22,11 @@ const DEFAULT_PARAMS: NetworkParams = {
   maxEdges: 500,
 }
 
+type DatasetType = 'international' | 'japanese'
+
 export default function Home() {
   const [isLoaded, setIsLoaded] = useState(false)
+  const [datasetType, setDatasetType] = useState<DatasetType>('international')
   const [networkData, setNetworkData] = useState<{
     nodes: any[]
     edges: any[]
@@ -36,8 +40,30 @@ export default function Home() {
   const [isManualSelection, setIsManualSelection] = useState(false)
 
   useEffect(() => {
-    // Load network data
-    fetch('/spotify_featuring_network.json')
+    // Load network data based on dataset type
+    const dataFile = datasetType === 'japanese' 
+      ? '/japanese_featuring_network.json'
+      : '/spotify_featuring_network.json'
+    
+    // Japaneseネットワークのノイズノードを除外するリスト
+    // 実際のデータに存在するバリエーションを含める
+    const noiseNodes = new Set([
+      '塊魂 シリーズ SOUND TEAM',
+      '塊魂',
+      'Schola Gregoriana Pragensis & Buddhist Tendai Monks From Japan',
+      'Schola Gregoriana Pragensis',
+      'Atsutada Otaka',
+      // 大文字小文字のバリエーションも考慮
+      '塊魂シリーズ SOUND TEAM',
+      'bandainamco game music',
+      'Schola gregoriana pragensis and duddhist tendai monks from japan',
+      'atsutada otaka',
+      'Bandai Namco Game Music',
+      'Bandai Namco Games',
+      'BANDAI NAMCO Game Music',
+    ])
+    
+    fetch(dataFile)
       .then((res) => {
         if (!res.ok) {
           throw new Error(`HTTP error! status: ${res.status}`)
@@ -45,18 +71,70 @@ export default function Home() {
         return res.json()
       })
       .then((data) => {
-        console.log('Network data loaded:', {
-          nodes: data.nodes?.length || 0,
-          edges: data.edges?.length || 0,
-          metadata: data.metadata,
-        })
-        setNetworkData(data)
+        // Japaneseネットワークの場合、ノイズノードをフィルタリング
+        if (datasetType === 'japanese') {
+          const originalNodeCount = data.nodes?.length || 0
+          const originalEdgeCount = data.edges?.length || 0
+          
+          // ノイズノードを除外
+          const filteredNodes = data.nodes.filter(
+            (node: any) => !noiseNodes.has(node.id) && !noiseNodes.has(node.name)
+          )
+          
+          // ノイズノードに関連するエッジも除外
+          const filteredEdges = data.edges.filter(
+            (edge: any) => 
+              !noiseNodes.has(edge.source) && !noiseNodes.has(edge.target)
+          )
+          
+          // メタデータを更新
+          const filteredData = {
+            ...data,
+            nodes: filteredNodes,
+            edges: filteredEdges,
+            metadata: {
+              ...data.metadata,
+              total_nodes: filteredNodes.length,
+              total_edges: filteredEdges.length,
+            }
+          }
+          
+          console.log('Network data loaded (filtered):', {
+            dataset: datasetType,
+            originalNodes: originalNodeCount,
+            filteredNodes: filteredNodes.length,
+            originalEdges: originalEdgeCount,
+            filteredEdges: filteredEdges.length,
+            removedNodes: originalNodeCount - filteredNodes.length,
+            removedEdges: originalEdgeCount - filteredEdges.length,
+            metadata: filteredData.metadata,
+          })
+          
+          setNetworkData(filteredData)
+        } else {
+          console.log('Network data loaded:', {
+            dataset: datasetType,
+            nodes: data.nodes?.length || 0,
+            edges: data.edges?.length || 0,
+            metadata: data.metadata,
+          })
+          setNetworkData(data)
+        }
+        
+        // データセット切り替え時に状態をリセット
+        setHighlightedArtist(null)
+        setSearchQuery('')
+        setSearchResults([])
+        setIsManualSelection(false)
       })
       .catch((err) => {
         console.error('Failed to load network data:', err)
-        alert(`データの読み込みに失敗しました: ${err.message}\n\npublic/spotify_featuring_network.jsonが存在するか確認してください。`)
+        const filePath = datasetType === 'japanese'
+          ? 'public/japanese_featuring_network.json'
+          : 'public/spotify_featuring_network.json'
+        alert(`データの読み込みに失敗しました: ${err.message}\n\n${filePath}が存在するか確認してください。`)
       })
-  }, [])
+  }, [datasetType])
 
   const handleLoadingComplete = () => {
     setIsLoaded(true)
@@ -73,6 +151,8 @@ export default function Home() {
       >
         <Navigation 
           networkData={networkData}
+          datasetType={datasetType}
+          onDatasetChange={setDatasetType}
           onSearchChange={(query, results) => {
             setSearchQuery(query)
             setSearchResults(results)
@@ -131,7 +211,7 @@ export default function Home() {
             }}
           />
           <TerminalOutput />
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10 pointer-events-auto">
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10 pointer-events-auto flex flex-col items-center gap-2">
             <a
               href="https://github.com/novelsavage/Audiograph-DataVisualization"
               target="_blank"
@@ -140,6 +220,13 @@ export default function Home() {
             >
               github.com/novelsavage/Audiograph-DataVisualization
             </a>
+            <Link
+              href="/presentation"
+              target="_blank"
+              className="text-[10px] font-mono text-gray-600 hover:text-terminal-green transition-colors opacity-50 hover:opacity-100"
+            >
+              [VIEW_PRESENTATION_SLIDES]
+            </Link>
           </div>
           <ControlPanel
             onParamsChange={setNetworkParams}
@@ -150,4 +237,3 @@ export default function Home() {
     </>
   )
 }
-
