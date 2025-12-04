@@ -160,11 +160,52 @@ const slides = [
     ),
   },
   {
-    id: 'problem',
+    id: 'story-dataset',
     render: () => (
       <div className="flex flex-col h-full justify-center max-w-4xl mx-auto px-6">
         <h2 className="text-4xl font-mono text-terminal-green mb-12 border-b border-gray-800 pb-4">
-          01_BACKGROUND
+          STORY: Dataset
+        </h2>
+        <div className="space-y-6 text-lg text-gray-300">
+          <div>
+            <h3 className="text-white font-bold text-2xl mb-4">使用したデータセット</h3>
+            <ul className="space-y-3 ml-4">
+              <li className="flex items-start">
+                <span className="text-terminal-green mr-3">●</span>
+                <div>
+                  <strong className="text-white">Kaggle: Ultimate Spotify Tracks DB</strong>
+                  <p className="text-gray-400 text-sm mt-1">
+                    https://www.kaggle.com/datasets/zaheenhamidani/ultimate-spotify-tracks-db
+                  </p>
+                </div>
+              </li>
+              <li className="flex items-start">
+                <span className="text-terminal-green mr-3">●</span>
+                <div>
+                  <strong className="text-white">Spotify Web API</strong>
+                  <p className="text-gray-400 text-sm mt-1">
+                    Python (Spotipy) を使用した楽曲メタデータとフィーチャリング情報の取得
+                  </p>
+                </div>
+              </li>
+            </ul>
+          </div>
+          <div className="mt-8 p-4 bg-gray-900/50 rounded border border-gray-800">
+            <p className="text-sm text-gray-400">
+              <strong className="text-terminal-green">データ規模:</strong> 525ノード、500エッジ、3,119コラボレーション（国際版）<br/>
+              <strong className="text-terminal-green">データ形式:</strong> ノード（アーティスト）、エッジ（共演関係）、トラック情報
+            </p>
+          </div>
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: 'story-motivation',
+    render: () => (
+      <div className="flex flex-col h-full justify-center max-w-4xl mx-auto px-6">
+        <h2 className="text-4xl font-mono text-terminal-green mb-12 border-b border-gray-800 pb-4">
+          STORY: Motivation
         </h2>
         <div className="space-y-8 text-xl text-gray-300">
           <div className="flex items-start space-x-6">
@@ -192,91 +233,119 @@ const slides = [
     ),
   },
   {
-    id: 'solution',
+    id: 'story-message',
     render: () => (
-      <div className="flex flex-col h-full justify-center max-w-4xl mx-auto px-6">
+      <div className="flex flex-col h-full justify-center max-w-7xl mx-auto px-6">
         <h2 className="text-4xl font-mono text-terminal-green mb-12 border-b border-gray-800 pb-4">
-          02_SOLUTION
+          STORY: Message / Insight
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-          <div className="space-y-6">
-            <h3 className="text-3xl font-bold text-white">Featuring Network</h3>
-            <p className="text-gray-400 text-lg leading-relaxed">
-              楽曲の<span className="text-terminal-green">Featuring（客演）</span>情報に着目。
-              アーティストを「ノード」、共演関係を「エッジ」として定義し、
-              巨大なネットワーク図として描画します。
-            </p>
-            <ul className="space-y-3 text-gray-300 font-mono text-sm border border-gray-800 p-4 rounded bg-black/50">
-              <li className="flex items-center">
-                <span className="w-2 h-2 bg-terminal-green rounded-full mr-3"></span>
-                Spotify API Data Source
-              </li>
-              <li className="flex items-center">
-                <span className="w-2 h-2 bg-terminal-green rounded-full mr-3"></span>
-                D3.js Force Directed Graph
-              </li>
-              <li className="flex items-center">
-                <span className="w-2 h-2 bg-terminal-green rounded-full mr-3"></span>
-                Interactive WebGL Rendering
-              </li>
-            </ul>
+        <div className="grid grid-cols-2 gap-8">
+          {/* 左側: メッセージ */}
+          <div className="space-y-6 text-lg text-gray-300">
+            <div>
+              <h3 className="text-white font-bold text-2xl mb-4">データから伝えたいこと</h3>
+              <ul className="space-y-4">
+                <li className="flex items-start">
+                  <span className="text-terminal-green mr-3 text-2xl">→</span>
+                  <div>
+                    <strong className="text-white">アーティスト間の「隠れたつながり」</strong>
+                    <p className="text-gray-400 text-base mt-1">
+                      フィーチャリングという形式を通じて、異なるジャンルや世代のアーティストが
+                      どのように結びついているかを可視化
+                    </p>
+                  </div>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-terminal-green mr-3 text-2xl">→</span>
+                  <div>
+                    <strong className="text-white">探索的な音楽発見</strong>
+                    <p className="text-gray-400 text-base mt-1">
+                      好きなアーティストから始めて、ネットワークを辿ることで
+                      新しい音楽との出会いを提供
+                    </p>
+                  </div>
+                </li>
+              </ul>
+            </div>
           </div>
-          <div className="relative aspect-square rounded-lg overflow-hidden border border-gray-800 bg-gray-900 flex items-center justify-center group">
-            {/* Removed gradient overlay for clearer view */}
-            <NetworkPreview />
+          {/* 右側: 可視化の例 */}
+          <div className="flex items-center justify-center">
+            <div className="w-80 h-80 border border-gray-800 rounded overflow-hidden bg-gray-900">
+              <NetworkPreview />
+            </div>
           </div>
         </div>
       </div>
     ),
   },
   {
-    id: 'tech-stack',
+    id: 'process',
     render: () => (
-      <div className="flex flex-col h-full justify-center max-w-5xl mx-auto px-6">
+      <div className="flex flex-col h-full justify-center max-w-7xl mx-auto px-6">
         <h2 className="text-4xl font-mono text-terminal-green mb-12 border-b border-gray-800 pb-4">
-          03_SYSTEM_ARCHITECTURE
+          PROCESS
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="p-6 border border-gray-800 bg-gray-900/30 rounded hover:border-terminal-green transition-colors">
-            <h3 className="text-xl font-mono text-gray-400 mb-4">データ構築</h3>
-            <div className="text-4xl mb-4">🐍</div>
-            <h4 className="text-white font-bold text-lg mb-2">Python</h4>
-            <p className="text-sm text-gray-500">
-              Spotify API (Spotipy)<br/>
-              Pandas for CSV/JSON<br/>
-              Recursive Artist Fetching
-            </p>
+        <div className="grid grid-cols-2 gap-8">
+          {/* 左側: スケッチ（2x2グリッド） */}
+          <div>
+            <h3 className="text-white font-bold text-xl font-mono text-terminal-green mb-4">Individual Outputs</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <h4 className="text-white font-mono text-sm text-gray-400">Katayama Takumi</h4>
+                <div className="border border-gray-800 rounded overflow-hidden bg-gray-900 aspect-square max-w-48">
+                  <img src="/presentation/Takumi.png" alt="Takumi's output" className="w-full h-full object-contain" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <h4 className="text-white font-mono text-sm text-gray-400">Kobayashi Hikaru</h4>
+                <div className="border border-gray-800 rounded overflow-hidden bg-gray-900 aspect-square max-w-48">
+                  <img src="/presentation/Hikaru.png" alt="Hikaru's output" className="w-full h-full object-contain" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <h4 className="text-white font-mono text-sm text-gray-400">Maeda Moriumi</h4>
+                <div className="border border-gray-800 rounded overflow-hidden bg-gray-900 aspect-square max-w-48">
+                  <img src="/presentation/Moriumi.png" alt="Moriumi's output" className="w-full h-full object-contain" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <h4 className="text-white font-mono text-sm text-gray-400">Okawa Wataru</h4>
+                <div className="border border-gray-800 rounded overflow-hidden bg-gray-900 aspect-square max-w-48">
+                  <img src="/presentation/Wataru.png" alt="Wataru's output" className="w-full h-full object-contain" />
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="p-6 border border-gray-800 bg-gray-900/30 rounded hover:border-terminal-green transition-colors">
-            <h3 className="text-xl font-mono text-gray-400 mb-4">フロントエンド</h3>
-            <div className="text-4xl mb-4">⚛️</div>
-            <h4 className="text-white font-bold text-lg mb-2">Next.js (React)</h4>
-            <p className="text-sm text-gray-500">
-              App Router<br/>
-              Tailwind CSS<br/>
-              TypeScript
-            </p>
-          </div>
-          <div className="p-6 border border-gray-800 bg-gray-900/30 rounded hover:border-terminal-green transition-colors">
-            <h3 className="text-xl font-mono text-gray-400 mb-4">VISUALIZATION</h3>
-            <div className="text-4xl mb-4">🕸️</div>
-            <h4 className="text-white font-bold text-lg mb-2">D3.js</h4>
-            <p className="text-sm text-gray-500">
-              Force Simulation<br/>
-              SVG / Canvas Rendering<br/>
-              Zoom & Pan Behaviors
-            </p>
+          {/* 右側: 統合要素 */}
+          <div className="flex items-center">
+            <div className="p-6 bg-gray-900/50 rounded border border-gray-800 w-full">
+              <h3 className="text-white font-bold text-2xl mb-6 font-mono">個人スケッチの統合</h3>
+              <ul className="space-y-4 text-lg text-gray-300">
+                <li className="flex items-start">
+                  <span className="text-terminal-green mr-3 text-xl">1.</span>
+                  <span>Spotifyのデータを使う</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-terminal-green mr-3 text-xl">2.</span>
+                  <span>平面の散布図にする</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-terminal-green mr-3 text-xl">3.</span>
+                  <span>アーティストはジャンルや人気度で抽出する</span>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
     ),
   },
   {
-    id: 'demo',
+    id: 'prototype-demo',
     render: () => (
       <div className="flex flex-col h-full justify-center items-center px-6 text-center">
         <h2 className="text-4xl font-mono text-terminal-green mb-8">
-          04_DEMO
+          PROTOTYPE: Demo
         </h2>
         <div className="w-full max-w-4xl border border-gray-700 rounded-lg overflow-hidden bg-gray-900 aspect-video relative group cursor-pointer hover:border-terminal-green transition-colors">
           <div className="absolute inset-0 flex flex-col items-center justify-center">
@@ -294,11 +363,61 @@ const slides = [
     ),
   },
   {
-    id: 'future',
+    id: 'prototype-design',
     render: () => (
       <div className="flex flex-col h-full justify-center max-w-4xl mx-auto px-6">
         <h2 className="text-4xl font-mono text-terminal-green mb-12 border-b border-gray-800 pb-4">
-          05_FUTURE_WORK
+          PROTOTYPE: Design Choices
+        </h2>
+        <div className="space-y-6 text-lg text-gray-300">
+          <div>
+            <h3 className="text-white font-bold text-2xl mb-4">Visualization の構成と意図</h3>
+            <ul className="space-y-3 ml-4">
+              <li className="flex items-start">
+                <span className="text-terminal-green mr-3">●</span>
+                <span><strong>ノード:</strong> アーティスト（サイズは共演回数に比例）</span>
+              </li>
+              <li className="flex items-start">
+                <span className="text-terminal-green mr-3">●</span>
+                <span><strong>エッジ:</strong> フィーチャリング関係（太さは共演回数に比例）</span>
+              </li>
+              <li className="flex items-start">
+                <span className="text-terminal-green mr-3">●</span>
+                <span><strong>フォース指向グラフ:</strong> D3.jsによる物理シミュレーション</span>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="text-white font-bold text-2xl mb-4">こだわった点</h3>
+            <ul className="space-y-3 ml-4">
+              <li className="flex items-start">
+                <span className="text-terminal-green mr-3">→</span>
+                <span><strong>ターミナル風UI:</strong> 近未来的なデザインで音楽データを表現</span>
+              </li>
+              <li className="flex items-start">
+                <span className="text-terminal-green mr-3">→</span>
+                <span><strong>リアルタイム検索:</strong> アーティスト名で即座にフィルタリング</span>
+              </li>
+              <li className="flex items-start">
+                <span className="text-terminal-green mr-3">→</span>
+                <span><strong>ラベル衝突検出:</strong> 可読性を向上させる自動配置</span>
+              </li>
+              <li className="flex items-start">
+                <span className="text-terminal-green mr-3">→</span>
+                <span><strong>インタラクティブ性:</strong> ドラッグ&ドロップ、ホバー効果</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: 'next-steps',
+    render: () => (
+      <div className="flex flex-col h-full justify-center max-w-4xl mx-auto px-6">
+        <h2 className="text-4xl font-mono text-terminal-green mb-12 border-b border-gray-800 pb-4">
+          Next Steps
         </h2>
         <ul className="space-y-6 text-xl text-gray-300 list-disc list-inside">
           <li className="marker:text-terminal-green">
@@ -314,9 +433,15 @@ const slides = [
             </p>
           </li>
           <li className="marker:text-terminal-green">
-            <span className="text-white font-bold">パーソナライズド・ネットワーク</span>
+            <span className="text-white font-bold">ジャンルごとの色分け</span>
             <p className="text-base text-gray-500 ml-6 mt-1">
-              ユーザー自身のSpotifyアカウントと連携し、よく聴くアーティストたちを中心とした独自のネットワーク図を生成したいです。
+              エッジのジャンル情報を活用して、ノードの色を主要ジャンルに基づいて設定し、視覚的魅力を向上させたいです。
+            </p>
+          </li>
+          <li className="marker:text-terminal-green">
+            <span className="text-white font-bold">拡大縮小機能（ズーム）</span>
+            <p className="text-base text-gray-500 ml-6 mt-1">
+              D3.jsの`d3.zoom()`を実装し、マウスホイールでのズーム機能を追加したいです。
             </p>
           </li>
         </ul>
