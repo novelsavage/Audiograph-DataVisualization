@@ -44,6 +44,24 @@ export default function Home() {
       ? '/japanese_featuring_network.json'
       : '/spotify_featuring_network.json'
     
+    // Japaneseネットワークのノイズノードを除外するリスト
+    // 実際のデータに存在するバリエーションを含める
+    const noiseNodes = new Set([
+      '塊魂 シリーズ SOUND TEAM',
+      '塊魂',
+      'Schola Gregoriana Pragensis & Buddhist Tendai Monks From Japan',
+      'Schola Gregoriana Pragensis',
+      'Atsutada Otaka',
+      // 大文字小文字のバリエーションも考慮
+      '塊魂シリーズ SOUND TEAM',
+      'bandainamco game music',
+      'Schola gregoriana pragensis and duddhist tendai monks from japan',
+      'atsutada otaka',
+      'Bandai Namco Game Music',
+      'Bandai Namco Games',
+      'BANDAI NAMCO Game Music',
+    ])
+    
     fetch(dataFile)
       .then((res) => {
         if (!res.ok) {
@@ -52,13 +70,92 @@ export default function Home() {
         return res.json()
       })
       .then((data) => {
-        console.log('Network data loaded:', {
-          dataset: datasetType,
-          nodes: data.nodes?.length || 0,
-          edges: data.edges?.length || 0,
-          metadata: data.metadata,
-        })
-        setNetworkData(data)
+        // Japaneseネットワークの場合、ノイズノードをフィルタリング
+        if (datasetType === 'japanese') {
+          const originalNodeCount = data.nodes?.length || 0
+          const originalEdgeCount = data.edges?.length || 0
+          
+          // ノイズノードを除外
+          const filteredNodes = data.nodes.filter(
+            (node: any) => !noiseNodes.has(node.id) && !noiseNodes.has(node.name)
+          )
+          
+          // ノイズノードに関連するエッジも除外
+          const filteredEdges = data.edges.filter(
+            (edge: any) => 
+              !noiseNodes.has(edge.source) && !noiseNodes.has(edge.target)
+          )
+          
+          // エッジに接続されているノードIDのセットを作成
+          const connectedNodeIds = new Set<string>()
+          filteredEdges.forEach((edge: any) => {
+            if (typeof edge.source === 'string') {
+              connectedNodeIds.add(edge.source)
+            } else if (edge.source?.id) {
+              connectedNodeIds.add(edge.source.id)
+            }
+            if (typeof edge.target === 'string') {
+              connectedNodeIds.add(edge.target)
+            } else if (edge.target?.id) {
+              connectedNodeIds.add(edge.target.id)
+            }
+          })
+          
+          // 孤立ノード（エッジに接続されていないノード）を除外
+          const nodesWithoutIsolated = filteredNodes.filter((node: any) => {
+            const nodeId = node.id || node.name
+            return connectedNodeIds.has(nodeId) || connectedNodeIds.has(node.id) || connectedNodeIds.has(node.name)
+          })
+          
+          // 孤立ノードを除外した後、存在しないノードへのエッジも削除
+          const finalNodes = nodesWithoutIsolated
+          const finalNodeIds = new Set<string>()
+          finalNodes.forEach((node: any) => {
+            if (node.id) finalNodeIds.add(node.id)
+            if (node.name) finalNodeIds.add(node.name)
+          })
+          const finalEdges = filteredEdges.filter((edge: any) => {
+            const sourceId = typeof edge.source === 'string' ? edge.source : edge.source?.id
+            const targetId = typeof edge.target === 'string' ? edge.target : edge.target?.id
+            return sourceId && targetId && finalNodeIds.has(sourceId) && finalNodeIds.has(targetId)
+          })
+          
+          // メタデータを更新
+          const filteredData = {
+            ...data,
+            nodes: finalNodes,
+            edges: finalEdges,
+            metadata: {
+              ...data.metadata,
+              total_nodes: finalNodes.length,
+              total_edges: finalEdges.length,
+            }
+          }
+          
+          console.log('Network data loaded (filtered):', {
+            dataset: datasetType,
+            originalNodes: originalNodeCount,
+            filteredNodes: filteredNodes.length,
+            finalNodes: finalNodes.length,
+            originalEdges: originalEdgeCount,
+            filteredEdges: filteredEdges.length,
+            finalEdges: finalEdges.length,
+            removedNodes: originalNodeCount - finalNodes.length,
+            removedEdges: originalEdgeCount - finalEdges.length,
+            isolatedNodesRemoved: filteredNodes.length - finalNodes.length,
+            metadata: filteredData.metadata,
+          })
+          
+          setNetworkData(filteredData)
+        } else {
+          console.log('Network data loaded:', {
+            dataset: datasetType,
+            nodes: data.nodes?.length || 0,
+            edges: data.edges?.length || 0,
+            metadata: data.metadata,
+          })
+          setNetworkData(data)
+        }
         // データセット切り替え時に状態をリセット
         setHighlightedArtist(null)
         setSearchQuery('')
